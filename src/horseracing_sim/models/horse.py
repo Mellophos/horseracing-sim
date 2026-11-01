@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .constants import Surface, Grade, DistanceCat, Strategy
+from horseracing_sim.constants import Surface, Grade, DistanceCat, Strategy
 
 
 class Horse(BaseModel):
