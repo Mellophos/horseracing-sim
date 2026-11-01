@@ -1,10 +1,8 @@
-
 import pytest
 from pydantic import ValidationError
 
-from horseracing_sim.course import Course
 from horseracing_sim.constants import Surface, DistanceCat
-from horseracing_sim.events import CourseEventType
+from horseracing_sim.models.course import Course
 
 
 @pytest.fixture
@@ -98,8 +96,8 @@ class TestCourseIdValidation:
         valid_course_data["surface"] = Surface.DIRT
 
         with pytest.raises(
-            ValidationError,
-            match="does not match surface attribute",
+                ValidationError,
+                match="does not match surface attribute",
         ):
             Course(**valid_course_data)
 
@@ -107,8 +105,8 @@ class TestCourseIdValidation:
         valid_course_data["distance"] = 2000
 
         with pytest.raises(
-            ValidationError,
-            match="does not match distance attribute",
+                ValidationError,
+                match="does not match distance attribute",
         ):
             Course(**valid_course_data)
 
@@ -181,10 +179,10 @@ class TestCourseProperties:
     @pytest.mark.parametrize(
         ("layout", "expected"),
         [
-            ("flat", "Flat"),
-            ("oval", "Oval"),
-            ("tight", "Tight"),
-            ("undulating", "Undulating"),
+            ("flat", "flat"),
+            ("oval", "oval"),
+            ("tight", "tight"),
+            ("undulating", "undulating"),
         ],
     )
     def test_layout(self, valid_course_data, layout, expected):
@@ -205,19 +203,26 @@ class TestCourseEvents:
 
     def test_events_are_sorted_by_trigger_at(self, valid_course_data):
         events = [
-            CourseEventType(
-                # Replace with the required fields for your event model.
-                type="example",
-                trigger_at=300,
-            ),
-            CourseEventType(
-                type="example",
-                trigger_at=100,
-            ),
-            CourseEventType(
-                type="example",
-                trigger_at=200,
-            ),
+            {
+                "id": 0,
+                "trigger_at": 0,
+                "is_start": True,
+                "straight_id": 1,
+                "type": 1
+            },
+            {
+                "id": 0,
+                "trigger_at": 1400,
+                "is_start": False,
+                "straight_id": 1,
+                "type": 1
+            },
+            {
+                "id": 2,
+                "trigger_at": 500,
+                "length": 100,
+                "gradient": -2.6
+            }
         ]
 
         valid_course_data["events"] = events
@@ -225,13 +230,24 @@ class TestCourseEvents:
         course = Course(**valid_course_data)
 
         assert [
-            event.trigger_at for event in course.events
-        ] == [100, 200, 300]
+                   event.trigger_at for event in course.events
+               ] == [0, 500, 1400]
 
     def test_events_with_same_trigger_at(self, valid_course_data):
         events = [
-            CourseEventType(type="example", trigger_at=100),
-            CourseEventType(type="example", trigger_at=100),
+            {
+                "id": 2,
+                "trigger_at": 500,
+                "length": 100,
+                "gradient": -2.6
+            },
+            {
+                "id": 0,
+                "trigger_at": 500,
+                "is_start": False,
+                "straight_id": 1,
+                "type": 1
+            },
         ]
 
         valid_course_data["events"] = events
@@ -239,7 +255,7 @@ class TestCourseEvents:
         course = Course(**valid_course_data)
 
         assert len(course.events) == 2
-        assert all(event.trigger_at == 100 for event in course.events)
+        assert all(event.trigger_at == 500 for event in course.events)
 
     def test_invalid_event(self, valid_course_data):
         valid_course_data["events"] = ["invalid"]

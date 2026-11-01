@@ -4,7 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from horseracing_sim.constants import Surface, Grade, DistanceCat, Strategy
-from horseracing_sim.horse import Horse, Stats, Aptitudes
+from horseracing_sim.models.horse import Horse, Stats, Aptitudes
 
 
 @pytest.fixture

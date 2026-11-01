@@ -2,7 +2,7 @@ import pytest
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from horseracing_sim.constants import Surface
-from horseracing_sim.events import (
+from horseracing_sim.models.events import (
     CourseEvent,
     Straight,
     Corner,
@@ -157,13 +157,12 @@ def test_corner_valid():
 
 
 def test_corner_defaults():
-    event = Corner(trigger_at=100, length=50)
+    event = Corner(trigger_at=100, length=50, direction=-1)
 
-    assert event.direction is None
     assert event.number == 0
 
 
-@pytest.mark.parametrize("direction", [-1, 1, None])
+@pytest.mark.parametrize("direction", [-1, 1])
 def test_corner_accepts_valid_directions(direction):
     event = Corner(
         trigger_at=100,
@@ -192,19 +191,19 @@ def test_corner_rejects_invalid_length(length):
 
 @pytest.mark.parametrize("number", [0, 1, 2, 3, 4])
 def test_corner_accepts_valid_numbers(number):
-    event = Corner(trigger_at=100, length=50, number=number)
+    event = Corner(trigger_at=100, length=50, direction=1, number=number)
     assert event.number == number
 
 
 @pytest.mark.parametrize("number", [-1, 5, 6])
 def test_corner_rejects_invalid_numbers(number):
     with pytest.raises(ValidationError):
-        Corner(trigger_at=100, length=50, number=number)
+        Corner(trigger_at=100, length=50, direction=1, number=number)
 
 
 def test_corner_id_is_fixed():
     with pytest.raises(ValidationError):
-        Corner(trigger_at=100, length=50, id=0)
+        Corner(trigger_at=100, length=50, id=0, direction=1)
 
 
 # ---------------------------------------------------------------------------
