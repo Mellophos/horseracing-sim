@@ -1,0 +1,259 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:assets:course-0.1.0",
+  "title": "Course",
+  "description": "A course JSON",
+  "type": "object",
+  "properties": {
+    "$version": {
+      "type": "string",
+      "const": "course-0.1.0"
+    },
+    "id": {
+      "description": "The unique identifier for a course",
+      "type": "string",
+      "pattern": "^course_[0-9]{5}_(?:turf|dirt|artificial)_[a-z]+_[0-9]{4}$"
+    },
+    "name": {
+      "description": "The name of the parent racetrack, e.g.: Tokyo",
+      "type": "string",
+      "minLength": 1
+    },
+    "surface": {
+      "description": "Main surface on which the course is run on",
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2
+      ]
+    },
+    "distance": {
+      "description": "Length of the entire course",
+      "type": "integer",
+      "minimum": 1000,
+      "maximum": 5000
+    },
+    "width": {
+      "description": "Default width of the course",
+      "type": "number",
+      "minimum": 1
+    },
+    "events": {
+      "description": "Describe the shape of a course, influencing how horses run.",
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/Straight"
+          },
+          {
+            "$ref": "#/$defs/Corner"
+          },
+          {
+            "$ref": "#/$defs/Slope"
+          },
+          {
+            "$ref": "#/$defs/SurfaceChange"
+          },
+          {
+            "$ref": "#/$defs/WidthChange"
+          }
+        ]
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "$version",
+    "id",
+    "name",
+    "surface",
+    "distance",
+    "width",
+    "events"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Straight": {
+      "title": "Straight event",
+      "description": "A straight section on the course. Each straight section is marked by two separate events.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "const": 0
+        },
+        "trigger_at": {
+          "description": "Distance in metres from the start of the course at which the event takes effect.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "is_start": {
+          "description": "true if the event marks the beginning of a straight, false if it marks the end.",
+          "type": "boolean"
+        },
+        "straight_id": {
+          "description": "Identifies the physical straight section. The same straight should ideally have the exact same ID.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "type": {
+          "description": "Optional, defaults to 0 when initialising. Identifies the type of straight: 1 for homestraight, 2 for backstraight, 3 for false straight.",
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2,
+            3
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "trigger_at",
+        "is_start",
+        "straight_id"
+      ],
+      "additionalProperties": false
+    },
+    "Corner": {
+      "title": "Corner event",
+      "description": "A curved section on the course",
+      "type": "object",
+      "properties": {
+        "id": {
+          "const": 1
+        },
+        "trigger_at": {
+          "description": "Distance in metres from the start of the course at which the event takes effect.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "length": {
+          "description": "Length of the corner",
+          "type": "integer",
+          "minimum": 1
+        },
+        "direction": {
+          "description": "Direction of the Corner. -1 for left turn, 1 for right turn.",
+          "type": "integer",
+          "enum": [
+            -1,
+            1
+          ]
+        },
+        "number": {
+          "description": "Optional. Usually seen in Japanese tracks. Labelling for various corner sections on the course, from 1 to 4.",
+          "type": "integer",
+          "enum": [
+            1,
+            2,
+            3,
+            4
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "trigger_at",
+        "length",
+        "direction"
+      ],
+      "additionalProperties": false
+    },
+    "Slope": {
+      "title": "Slope event",
+      "description": "A sloped section on the course",
+      "type": "object",
+      "properties": {
+        "id": {
+          "const": 2
+        },
+        "trigger_at": {
+          "description": "Distance in metres from the start of the course at which the event takes effect.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "length": {
+          "description": "How long the slope runs for",
+          "type": "integer",
+          "minimum": 1
+        },
+        "gradient": {
+          "description": "Gradient of the sloped section as a percentage, from -100 to 100. Please avoid writing values past -3 and 3 as horses may struggle taking extreme gradients.",
+          "type": "number",
+          "minimum": -100,
+          "maximum": 100
+        }
+      },
+      "required": [
+        "id",
+        "trigger_at",
+        "length",
+        "gradient"
+      ],
+      "additionalProperties": false
+    },
+    "SurfaceChange": {
+      "title": "SurfaceChange event",
+      "description": "A change in surface on the course. This event should be used sparingly.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "const": 3
+        },
+        "trigger_at": {
+          "description": "Distance in metres from the start of the course at which the event takes effect.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "length": {
+          "description": "How long the new surface runs for",
+          "type": "integer",
+          "minimum": 1
+        },
+        "change_to": {
+          "type": "integer",
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "trigger_at",
+        "length",
+        "change_to"
+      ],
+      "additionalProperties": false
+    },
+    "WidthChange": {
+      "title": "WidthChange event",
+      "description": "A change in the course's maximum width. Avoid using this unless you actually need it.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "const": 4
+        },
+        "trigger_at": {
+          "description": "Distance in metres from the start of the course at which the event takes effect.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "change_to": {
+          "description": "New value to change course width to",
+          "type": "number",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "id",
+        "trigger_at",
+        "change_to"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
