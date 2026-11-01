@@ -1,10 +1,10 @@
-from typing import Self
+from typing import Self, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator, \
     field_validator
 
-from .constants import Surface, DistanceCat
 from .events import CourseEventType
+from ..constants import Surface, DistanceCat
 
 
 class Course(BaseModel):
@@ -27,13 +27,38 @@ class Course(BaseModel):
     width: float = Field(ge=1)
     events: list[CourseEventType] = Field(default_factory=list)
 
+    def __init__(
+            self,
+            /,
+            *,
+            layout: str = "main",
+            **data: Any):
+        if "version" not in data and "$version" not in data:
+            data["version"] = "course-0.1.0"
+
+        if "id" not in data:
+            surface = data.get("surface")
+            distance = data.get("distance")
+
+            if surface is not None and distance is not None:
+                surface_name = (
+                    surface.name.lower()
+                    if isinstance(surface, Surface)
+                    else str(surface).lower()
+                )
+
+                data["id"] = (
+                    f"course_90000_{surface_name}_{layout.lower()}_{distance}"
+                )
+        super().__init__(**data)
+
     @property
     def distance_cat(self) -> DistanceCat:
         return DistanceCat.from_distance(self.distance)
 
     @property
     def layout(self) -> str:
-        return self.id.split("_")[3].capitalize()
+        return self.id.split("_")[3]
 
     @model_validator(mode="after")
     def validate_id_consistency(self) -> Self:
