@@ -5,6 +5,18 @@ from importlib.resources import files
 from jsonschema.validators import Draft202012Validator
 
 
+def parse_schema_identifier(identifier: str) -> tuple[str, str]:
+    try:
+        name, version = identifier.rsplit("-", 1)
+    except ValueError:
+        raise ValueError(f"Invalid schema identifier: {identifier}")
+
+    if not name or not version:
+        raise ValueError(f"Invalid schema identifier: {identifier}")
+
+    return name, version
+
+
 @lru_cache(maxsize=32)
 def load_schema(identifier: str) -> dict:
     name, version = parse_schema_identifier(identifier)
@@ -19,21 +31,9 @@ def load_schema(identifier: str) -> dict:
     )
 
     if not schema_path.is_file():
-        raise ValueError(f"Schema not found: {schema_path}")
+        raise ValueError(f"Schema not found: {identifier!r}")
 
     return json.loads(schema_path.read_text(encoding="utf-8"))
-
-
-def parse_schema_identifier(identifier: str) -> tuple[str, str]:
-    try:
-        name, version = identifier.rsplit("-", 1)
-    except ValueError:
-        raise ValueError(f"Invalid schema identifier: {identifier}")
-
-    if not name or not version:
-        raise ValueError(f"Invalid schema identifier: {identifier}")
-
-    return name, version
 
 
 def validate_json(data: dict) -> None:
