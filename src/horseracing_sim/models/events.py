@@ -2,7 +2,7 @@ from typing import Literal, Annotated
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .constants import Surface
+from horseracing_sim.constants import Surface
 
 
 class CourseEvent(BaseModel):
@@ -39,7 +39,7 @@ class Straight(CourseEvent):
     """
     id: Literal[0] = 0
     is_start: bool
-    straight_id: int = Field(ge=0)
+    straight_id: int = Field(ge=1)
     type: Literal[0, 1, 2, 3] = 0
 
 
@@ -58,7 +58,7 @@ class Corner(CourseEvent):
     """
     id: Literal[1] = 1
     length: int = Field(ge=1)
-    direction: Literal[-1, 1] | None = None
+    direction: Literal[-1, 1]
     number: Literal[0, 1, 2, 3, 4] = 0
 
 
@@ -68,7 +68,7 @@ class Slope(CourseEvent):
     Attributes:
         trigger_at: Distance in metres from the start of the course
             at which the event takes effect.
-        length: Length of the Slope
+        length: How long the Slope runs for
         gradient: Gradient of the sloped section as a percentage, from
             ``-100`` to ``100``. Please avoid writing values past
             ``-3`` and ``3`` as horses may struggle taking extreme gradients.
