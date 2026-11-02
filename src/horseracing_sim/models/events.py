@@ -38,9 +38,9 @@ class Straight(CourseEvent):
             ``2`` for backstraight, ``3`` for false straight.
     """
     id: Literal[0] = 0
-    is_start: bool
     straight_id: int = Field(ge=1)
     type: Literal[0, 1, 2, 3] = 0
+    is_start: bool
 
 
 class Corner(CourseEvent):
@@ -57,9 +57,9 @@ class Corner(CourseEvent):
             on the Course, from ``1`` to ``4``.
     """
     id: Literal[1] = 1
-    length: int = Field(ge=1)
-    direction: Literal[-1, 1]
     number: Literal[0, 1, 2, 3, 4] = 0
+    direction: Literal[-1, 1]
+    length: int = Field(ge=1)
 
 
 class Slope(CourseEvent):
@@ -74,8 +74,8 @@ class Slope(CourseEvent):
             ``-3`` and ``3`` as horses may struggle taking extreme gradients.
     """
     id: Literal[2] = 2
-    length: int = Field(ge=1)
     gradient: float = Field(ge=-100, le=100)
+    length: int = Field(ge=1)
 
 
 class SurfaceChange(CourseEvent):
@@ -91,8 +91,8 @@ class SurfaceChange(CourseEvent):
         change_to: Surface to change to
     """
     id: Literal[3] = 3
-    length: int = Field(ge=1)
     change_to: Surface
+    length: int = Field(ge=1)
 
 
 class WidthChange(CourseEvent):
