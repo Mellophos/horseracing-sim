@@ -95,7 +95,7 @@ class HorseProvider(BaseJsonProvider):
             horse_id = horse["id"]
             path = self.output_dir / "horses" / f"{horse_id}.json"
             if path.exists():
-                print(f"#-- Horse {horse_id!r} already exists.")
+                print(f"E   Horse {horse_id!r} already exists.")
                 continue
 
             self.write_json(f"horses/{horse_id}.json", horse)
