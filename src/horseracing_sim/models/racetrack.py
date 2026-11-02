@@ -1,5 +1,4 @@
 from collections.abc import Callable
-from dataclasses import dataclass
 from typing import ClassVar, Iterable
 
 from .course import Course
@@ -12,36 +11,60 @@ DistLayoutConfig = dict[tuple[int, str], TrackLayout]
 Configuration = dict[Surface, DistLayoutConfig]
 
 
-@dataclass(frozen=True)
-class CourseConfig:
-    surface: Surface
-    distance: int
-    layout: str
-
-
 class Racetrack:
     NAME: ClassVar[str]
-    CONFIGS: ClassVar[Configuration] = {}
+    DIST_CONFIGS: ClassVar[Configuration] = {}
 
     def get_track(
             self,
             surface: Surface,
             distance: int,
-            layout: str = "main"
-    ) -> TrackLayout:
-        try:
-            return self.CONFIGS[surface][(distance, layout)]
-        except KeyError:
-            raise AttributeError(
-                f"No track found for: {surface!r}, {distance!r}, {layout!r}"
+            layout: str
+    ) -> tuple[TrackLayout, str]:
+        surface_config = self.DIST_CONFIGS.get(surface)
+        if surface_config is None:
+            available_surfaces = ", ".join(
+                s.name.lower() for s in self.DIST_CONFIGS
             )
+            raise KeyError(
+                f"No tracks configured for {surface.name!r}. "
+                f"Available surfaces: {available_surfaces}"
+            )
+
+        track = surface_config.get((distance, layout))
+
+        if track is not None:
+            return track, layout
+
+        available_layouts = [
+            name
+            for dist, name in surface_config
+            if dist == distance
+        ]
+
+        if available_layouts:
+            raise KeyError(
+                f"No tracks configured for: "
+                f"{surface.name!r}, {distance!r}, {layout!r}. "
+                f"Available layouts for this distance: {available_layouts!r}"
+            )
+
+        available_distances = sorted({
+            dist for dist, _ in surface_config
+        })
+
+        raise KeyError(
+            f"No tracks configured for: "
+            f"{surface.name!r}, {distance!r}, {layout}. "
+            f"Available distances: {available_distances}."
+        )
 
     def _get_builder(
             self,
             surface: Surface,
             distance: int,
             layout: str,
-    ) -> Callable[list[CourseEventType], list[CourseEventType]] | None:
+    ) -> Callable[[EventBuilder], list[CourseEventType]] | None:
         surface_name = surface.name.lower()
 
         candidates = [
@@ -50,10 +73,12 @@ class Racetrack:
         ]
 
         for name in candidates:
-            builder = getattr(self, name, None)
+            builder: Callable[[EventBuilder], list[CourseEventType]] | None = (
+                getattr(self, name, None)
+            )
             if builder is not None:
                 if not callable(builder):
-                    raise TypeError(f"{name!r} is not callable.")
+                    raise TypeError(f"{name!r} must be callable.")
                 return builder
         return None
 
@@ -63,7 +88,7 @@ class Racetrack:
             distance: int,
             layout: str = "main"
     ) -> Course:
-        track = self.get_track(surface, distance, layout)
+        track, layout = self.get_track(surface, distance, layout)
         event_builder = EventBuilder(
             track.events_until(distance)
         )
@@ -83,13 +108,21 @@ class Racetrack:
             events=event_list,
         )
 
-    @staticmethod
-    def track_config(
-            track: TrackLayout,
-            distances: Iterable[int],
-            layout: str = "main"
-    ) -> DistLayoutConfig:
-        configs = {}
-        for dist in distances:
-            configs[(dist, layout)] = track
-        return configs
+    def __init_subclass__(cls) -> None:
+        if "NAME" not in cls.__dict__:
+            raise AttributeError(f"{cls.__name__} has no NAME attribute.")
+        if "DIST_CONFIGS" not in cls.__dict__:
+            raise AttributeError(
+                f"{cls.__name__} has no DIST_CONFIGS attribute.")
+        super().__init_subclass__()
+
+
+def track_config(
+        track: TrackLayout,
+        distances: Iterable[int],
+        layout: str = "main"
+) -> DistLayoutConfig:
+    configs = {}
+    for dist in distances:
+        configs[(dist, layout)] = track
+    return configs
