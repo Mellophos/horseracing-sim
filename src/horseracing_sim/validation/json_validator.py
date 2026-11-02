@@ -37,7 +37,7 @@ def load_schema(identifier: str) -> dict:
 
 
 def validate_json(data: dict) -> None:
-    identifier = data.get("$version")
+    identifier = data.get("version")
     if not isinstance(identifier, str):
         raise ValueError("Missing or invalid schema")
 

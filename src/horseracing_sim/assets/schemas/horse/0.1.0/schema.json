@@ -5,7 +5,7 @@
   "description": "A horse JSON",
   "type": "object",
   "properties": {
-    "$version": {
+    "version": {
       "type": "string",
       "const": "horse-0.1.0"
     },
@@ -177,7 +177,7 @@
     }
   },
   "required": [
-    "$version",
+    "version",
     "id",
     "name",
     "aptitudes",

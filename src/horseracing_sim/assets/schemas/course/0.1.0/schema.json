@@ -5,7 +5,7 @@
   "description": "A course JSON",
   "type": "object",
   "properties": {
-    "$version": {
+    "version": {
       "type": "string",
       "const": "course-0.1.0"
     },
@@ -65,7 +65,7 @@
     }
   },
   "required": [
-    "$version",
+    "version",
     "id",
     "name",
     "surface",
