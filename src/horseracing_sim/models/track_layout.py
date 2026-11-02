@@ -8,15 +8,21 @@ class TrackLayout:
             self,
             *,
             layout: Literal["loop", "linear"],
-            events: list[CourseEventType],
             width: float,
-            lap_distance: int
+            events: list[CourseEventType],
+            lap_distance: int | None = None
     ):
         self.layout = layout
-        self.events = events
         self.width = width
+        self.events = sorted(events, key=lambda e: e.trigger_at)
         if self.layout == "loop":
+            if not lap_distance:
+                raise ValueError(
+                    "lap_distance must be specified for loop layout")
             self.lap_distance = lap_distance
+        else:
+            if lap_distance:
+                raise ValueError("lap_distance not needed for linear layout")
 
     def _build_events_for_loop(self, distance: int) -> list[CourseEventType]:
         event_list = []
@@ -24,14 +30,15 @@ class TrackLayout:
         laps = total_dist // self.lap_distance + 1
         for lap in range(laps):
             for idx, event in enumerate(self.events[1:-1]):
-                if event.trigger_at <= distance:
-                    event_list.append(
-                        event.model_copy(
-                            update={"trigger_at": distance - event.trigger_at}
-                        )
-                    )
-                else:
+                if event.trigger_at > distance:
                     break
+
+                event_list.append(
+                    event.model_copy(
+                        update={"trigger_at": distance - event.trigger_at}
+                    )
+                )
+
             distance -= self.lap_distance
 
         event_list.append(
@@ -44,13 +51,15 @@ class TrackLayout:
 
     def _build_events_for_linear(self, distance: int) -> list[CourseEventType]:
         event_list = []
-        for event in self.events[1:-1]:
-            if event.trigger_at <= distance:
-                event_list.append(
-                    event.model_copy(
-                        update={"trigger_at": distance - event.trigger_at}
-                    )
+        for event in self.events[1:]:
+            if event.trigger_at > distance:
+                break
+
+            event_list.append(
+                event.model_copy(
+                    update={"trigger_at": distance - event.trigger_at}
                 )
+            )
 
         event_list.append(
             self.events[0].model_copy(
