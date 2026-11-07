@@ -15,7 +15,7 @@ class Horse(BaseModel):
         validate_by_alias=True,
     )
 
-    version: str = Field(alias="$version")
+    version: str = Field(pattern=r"^horse-[0-9]+\.[0-9]+\.[0-9]+$")
     id: str = Field(pattern=r"^horse_[0-9]{5}$")
     name: str = Field(min_length=2, max_length=18)
     stats: Stats

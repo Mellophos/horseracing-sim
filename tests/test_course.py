@@ -8,7 +8,7 @@ from horseracing_sim.models.course import Course
 @pytest.fixture
 def valid_course_data():
     return {
-        "$version": "1.0",
+        "version": "course-0.1.0",
         "id": "course_00001_turf_flat_1600",
         "name": "Test Course",
         "surface": Surface.TURF,
@@ -21,20 +21,13 @@ class TestCourseCreation:
     def test_create_valid_course(self, valid_course_data):
         course = Course(**valid_course_data)
 
-        assert course.version == "1.0"
+        assert course.version == "course-0.1.0"
         assert course.id == "course_00001_turf_flat_1600"
         assert course.name == "Test Course"
         assert course.surface == Surface.TURF
         assert course.distance == 1600
         assert course.width == 20.0
         assert course.events == []
-
-    def test_create_course_using_field_name(self, valid_course_data):
-        valid_course_data["version"] = valid_course_data.pop("$version")
-
-        course = Course(**valid_course_data)
-
-        assert course.version == "1.0"
 
     def test_missing_required_field(self, valid_course_data):
         del valid_course_data["name"]
@@ -265,14 +258,6 @@ class TestCourseEvents:
 
 
 class TestCourseSerialization:
-    def test_serialization_uses_version_alias(self, valid_course_data):
-        course = Course(**valid_course_data)
-
-        data = course.model_dump()
-
-        assert "$version" in data
-        assert "version" not in data
-
     def test_serialization_includes_events(self, valid_course_data):
         course = Course(**valid_course_data)
 
@@ -285,7 +270,7 @@ class TestCourseSerialization:
 
         data = course.model_dump()
 
-        assert data["$version"] == "1.0"
+        assert data["version"] == "course-0.1.0"
         assert data["id"] == "course_00001_turf_flat_1600"
         assert data["name"] == "Test Course"
         assert data["distance"] == 1600

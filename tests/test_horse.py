@@ -44,7 +44,7 @@ def valid_aptitudes():
 @pytest.fixture
 def valid_horse():
     return {
-        "$version": "horse-0.1.0",
+        "version": "horse-0.1.0",
         "id": "horse_12345",
         "name": "Thunder",
         "stats": {
@@ -333,14 +333,6 @@ class TestHorse:
         assert isinstance(horse.stats, Stats)
         assert isinstance(horse.aptitudes, Aptitudes)
 
-    def test_accepts_version_field_name(self, valid_horse):
-        del valid_horse["$version"]
-        valid_horse["version"] = "horse-0.1.0"
-
-        horse = Horse(**valid_horse)
-
-        assert horse.version == "horse-0.1.0"
-
     def test_rejects_invalid_horse_id(self, valid_horse):
         invalid_ids = [
             "horse_1234",
@@ -397,15 +389,6 @@ class TestHorse:
 
         with pytest.raises(ValidationError):
             horse.name = "Lightning"
-
-    def test_serialization_uses_version_alias(self, valid_horse):
-        horse = Horse(**valid_horse)
-
-        serialized = horse.model_dump()
-
-        assert "$version" in serialized
-        assert "version" not in serialized
-        assert serialized["$version"] == "horse-0.1.0"
 
     def test_serialization_can_use_field_names(self, valid_horse):
         horse = Horse(**valid_horse)

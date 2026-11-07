@@ -16,7 +16,7 @@ class Course(BaseModel):
         validate_by_alias=True,
     )
 
-    version: str = Field(alias="$version")
+    version: str = Field(pattern=r"^course-[0-9]+\.[0-9]+\.[0-9]+$")
     id: str = Field(
         pattern=r"^course_[0-9]{5}_(?:turf|dirt|artificial)_[a-z]+_[0-9]{4}$"
     )
