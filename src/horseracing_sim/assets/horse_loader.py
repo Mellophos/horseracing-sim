@@ -5,7 +5,7 @@ HORSES_PACKAGE = "horseracing_sim.assets.horses"
 
 
 def get(horse_id: str | int) -> dict:
-    """Gets a horse from assets with given ID."""
+    """Get a horse from assets with given horse ID."""
     if isinstance(horse_id, int):
         horse_id = f"horse_{horse_id:05d}"
     horse_id = horse_id.removesuffix(".json")
@@ -20,7 +20,7 @@ def get(horse_id: str | int) -> dict:
 
 
 def list_all() -> dict:
-    """Lists all horses from assets."""
+    """List all horses from assets."""
     ids = {}
 
     for item in resources.files(HORSES_PACKAGE).iterdir():
