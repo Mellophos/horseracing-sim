@@ -1,7 +1,7 @@
-from . import horse_loader as horse
-from . import track_loader as track
+from . import horse_loader as horses
+from . import track_loader as tracks
 
 __all__ = [
-    "horse",
-    "track"
+    "horses",
+    "tracks"
 ]
