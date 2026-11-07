@@ -1,6 +1,6 @@
 # horseracing-sim
 
-### !  This project is currently under active development  !
+### !!  This project is currently under active development  !!
 
 Python-based horse racing simulation.
 
@@ -11,10 +11,8 @@ Creating a deep and intricate horse racing simulation that is highly customisabl
 ## Planned Features
 
 - Run horse races on a racetrack of your choice
-- Create and save custom racetracks to run races on
-- Save races and replay them whenever you want
+- Create custom racetracks to run races on
 - Export race data in a readable format for your own uses (data analysis etc.)
-- (Tent.) Watch and bet with fake in-game currency on randomly generated races
 
 ## Roadmap
 
