@@ -111,9 +111,12 @@ class Racetrack:
     def __init_subclass__(cls) -> None:
         if "NAME" not in cls.__dict__:
             raise AttributeError(f"{cls.__name__} has no NAME attribute.")
+
         if "DIST_CONFIGS" not in cls.__dict__:
             raise AttributeError(
-                f"{cls.__name__} has no DIST_CONFIGS attribute.")
+                f"{cls.__name__} has no DIST_CONFIGS attribute."
+            )
+
         super().__init_subclass__()
 
 
